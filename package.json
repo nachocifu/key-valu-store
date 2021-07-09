@@ -1,0 +1,12 @@
+{
+  "name": "repl-key-value-store",
+  "version": "1.0.0",
+  "description": "Simple key value store exercise",
+  "main": "main.js",
+  "author": "Ignacio Cifuentes @nachocifu",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "net": "^1.0.2"
+  }
+}
