@@ -1,7 +1,24 @@
 const net = require('net');
+const { ArgumentParser } = require('argparse');
+const { version, description } = require('./package.json');
 
+
+/**
+ * Handle arguments
+ */
+const parser = new ArgumentParser({
+    description: description
+});
+parser.add_argument('-v', '--version', { action: 'version', version });
+parser.add_argument('-p', '--port', { help: 'The listening port', default: '3000', type: 'int'});
+
+let args = parser.parse_args();
+let port = args['port'];
 let map = null;
 
+/**
+ * Start server
+ */
 const server = net.createServer((c) => {
     // TODO log client connected
 
@@ -9,11 +26,12 @@ const server = net.createServer((c) => {
         // on empty input, do nothing
         if(data.toString().trim().length === 0) return;
 
+        // parse input
         var response = data.toString()
             .trim()
+            .replace(/\s+/, ' ')
             .split(/\s/)
         ;
-        // TODO handle multiple whitespaces between key value and command
 
         switch (response[0].toUpperCase()){
             case 'GET':
@@ -37,8 +55,8 @@ const server = net.createServer((c) => {
         }
     });
 
-}).listen(3000, () => {
+}).listen(port, () => { // TODO get port from cli
     map = new Map();
-    console.log('Key-value store started');
+    console.log('Key-value store started. Listening on port '+port);
 });
 
