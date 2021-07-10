@@ -1,7 +1,13 @@
 const net = require('net');
 map = new Map();
+metrics = new Map([
+    ['gets', 0],
+    ['sets', 0],
+    ['deletes', 0],
+    ['sessions', 0],
+    ['history', new Array(50)],
+]);
 const store = net.createServer((c) => {
-    // TODO log client connected
 
     c
         .on('error', err => console.log(err))
@@ -15,7 +21,7 @@ const store = net.createServer((c) => {
         // evaluate line
         data.forEach(line => evaluate(c, line));
     });
-
+    incrementMetric('sessions',1);
 });
 
 function evaluate(c, data) {
@@ -34,6 +40,8 @@ function evaluate(c, data) {
                 break;
             }
             c.write(map.get(command[1])+"\n");
+            incrementMetric('gets',1)
+            logCommand(command)
             break;
         case 'SET':
             if(command.length !== 3) {
@@ -41,6 +49,8 @@ function evaluate(c, data) {
                 break;
             }
             map.set(command[1], command[2]);
+            incrementMetric('sets',1)
+            logCommand(command)
             break;
         case 'DELETE':
             if(command.length !== 2) {
@@ -48,6 +58,8 @@ function evaluate(c, data) {
                 break;
             }
             map.delete(command[1]);
+            incrementMetric('deletes',1)
+            logCommand(command)
             break;
         case 'EXIT':
             if(command.length !== 1) {
@@ -55,10 +67,33 @@ function evaluate(c, data) {
                 break;
             }
             c.end();
+            logCommand(command)
+            break;
+        case 'METRICS':
+            if(command.length !== 1) {
+                c.write("Invalid Input\n");
+                break;
+            }
+            c.write(JSON.stringify([...metrics])+"\n");
+            logCommand(command)
             break;
         default:
             c.write("Invalid Input\n");
     }
+}
+
+function incrementMetric(key, value) {
+    metrics.set(key, metrics.get(key)+value);
+}
+
+/**
+ * Logs history for latest N commands
+ * @param command
+ */
+function logCommand(command) {
+    let elem = metrics.get('history');
+    elem.unshift(command);
+    elem.pop();
 }
 
 module.exports = store;

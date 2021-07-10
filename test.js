@@ -108,11 +108,6 @@ test('Exit session', (done) => {
     client.write('set b 3\n', () => client.write('exit\n'));
 });
 
-test('Drain test', (done) => {
-    client.on('drain', done);
-    client.write('set b 3\n');
-});
-
 test('Get element after another client update should return new value', (done) => {
     let client2 = new net.Socket();
     client2.connect({port: testPort}).on('error', (err) => console.log(err));

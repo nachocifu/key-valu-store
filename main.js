@@ -15,9 +15,6 @@ parser.add_argument('-p', '--port', { help: 'The listening port', default: '3000
 let args = parser.parse_args();
 let port = args['port'];
 
-
-
 store.listen(port, () => {
     console.log('Key-value store started. Listening on port '+port);
 });
-
