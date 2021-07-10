@@ -95,6 +95,22 @@ test('Set element and then retrieve same element (no value)', (done) => {
     client.write('set b\n')
 });
 
+test('Bad command', (done) => {
+    client.on('data', data => {
+        expect(data.toString().trim()).toBe("Invalid Input");
+        done();
+    })
+    client.write('helloworld\n')
+});
+
+test('Metrics command is available and starts zeroed', (done) => {
+    client.on('data', data => {
+        expect(data.toString().trim()).toBe("[[\"gets\",0],[\"sets\",0],[\"deletes\",0],[\"sessions\",1],[\"history\",[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]]]");
+        done();
+    })
+    client.write('metrics\n')
+});
+
 test('After deleting element should return undefined', (done) => {
     client.on('data', data => {
         expect(data.toString().trim()).toBe("undefined");
