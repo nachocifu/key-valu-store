@@ -26,13 +26,14 @@ const server = net.createServer((c) => {
         // on empty input, do nothing
         if(data.toString().trim().length === 0) return;
 
-        // parse input
+        // READ
         var response = data.toString()
             .trim()
             .replace(/\s+/, ' ')
             .split(/\s/)
         ;
 
+        // EVALUATE
         switch (response[0].toUpperCase()){
             case 'GET':
                 console.log("getting element "+ response[1]);
