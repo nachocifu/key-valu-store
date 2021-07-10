@@ -6,8 +6,15 @@
   "author": "Ignacio Cifuentes @nachocifu",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "test": "jest",
+    "start": "node main.js"
+  },
   "dependencies": {
     "argparse": "^2.0.1",
     "net": "^1.0.2"
+  },
+  "devDependencies": {
+    "jest": "^27.0.6"
   }
 }
