@@ -1,5 +1,7 @@
 const net = require('net');
+// store map for key-value
 map = new Map();
+// metrics storage
 metrics = new Map([
     ['gets', 0],
     ['sets', 0],
@@ -7,23 +9,29 @@ metrics = new Map([
     ['sessions', 0],
     ['history', new Array(50)],
 ]);
+
 const store = net.createServer((c) => {
 
     c
         .on('error', err => console.log(err))
-        .on('data', function(data) {
-        // on empty input, do nothing
-        if(data.toString().trim().length === 0) return;
+        .on('data', function (data) {
+            // on empty input, do nothing
+            if (data.toString().trim().length === 0) return;
 
-        // parse tcp stream for multiple commands
-        data = data.toString().trim().split(/\n/);
+            // parse tcp stream for multiple commands
+            data = data.toString().trim().split(/\n/);
 
-        // evaluate line
-        data.forEach(line => evaluate(c, line));
-    });
-    incrementMetric('sessions',1);
+            // evaluate line
+            data.forEach(line => evaluate(c, line));
+        });
+    incrementMetric('sessions', 1);
 });
 
+/**
+ * Evaluates input and writes to socket accordingly
+ * @param c Net.Socket
+ * @param data String
+ */
 function evaluate(c, data) {
     // READ
     let command = data.toString()
@@ -33,36 +41,36 @@ function evaluate(c, data) {
     // console.log("SERVER input parsed: >"+command+"<")
 
     // EVALUATE
-    switch (command[0].toUpperCase()){
+    switch (command[0].toUpperCase()) {
         case 'GET':
-            if(command.length !== 2) {
+            if (command.length !== 2) {
                 c.write("Invalid Input\n");
                 break;
             }
-            c.write(map.get(command[1])+"\n");
-            incrementMetric('gets',1)
+            c.write(map.get(command[1]) + "\n");
+            incrementMetric('gets', 1)
             logCommand(command)
             break;
         case 'SET':
-            if(command.length !== 3) {
+            if (command.length !== 3) {
                 c.write("Invalid Input\n");
                 break;
             }
             map.set(command[1], command[2]);
-            incrementMetric('sets',1)
+            incrementMetric('sets', 1)
             logCommand(command)
             break;
         case 'DELETE':
-            if(command.length !== 2) {
+            if (command.length !== 2) {
                 c.write("Invalid Input\n");
                 break;
             }
             map.delete(command[1]);
-            incrementMetric('deletes',1)
+            incrementMetric('deletes', 1)
             logCommand(command)
             break;
         case 'EXIT':
-            if(command.length !== 1) {
+            if (command.length !== 1) {
                 c.write("Invalid Input\n");
                 break;
             }
@@ -70,11 +78,11 @@ function evaluate(c, data) {
             logCommand(command)
             break;
         case 'METRICS':
-            if(command.length !== 1) {
+            if (command.length !== 1) {
                 c.write("Invalid Input\n");
                 break;
             }
-            c.write(JSON.stringify([...metrics])+"\n");
+            c.write(JSON.stringify([...metrics]) + "\n");
             logCommand(command)
             break;
         default:
@@ -83,7 +91,7 @@ function evaluate(c, data) {
 }
 
 function incrementMetric(key, value) {
-    metrics.set(key, metrics.get(key)+value);
+    metrics.set(key, metrics.get(key) + value);
 }
 
 /**
